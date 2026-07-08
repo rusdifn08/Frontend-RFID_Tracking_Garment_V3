@@ -1,0 +1,58 @@
+services:
+  proxy:
+    build: .
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./docker-data:/app/docker-data
+    entrypoint: ["/usr/bin/tini", "-g", "--", "/entrypoint-proxy.sh"]
+    command:
+      - node
+      - -r
+      - ./set-no-debug.cjs
+      - server.js
+      - ${SERVER_ARG}
+    environment:
+      BACKEND_IP: ${BACKEND_IP}
+      BACKEND_PORT: ${BACKEND_PORT}
+      BACKEND_API_URL: ${BACKEND_API_URL}
+      BACKEND_ENV: ${BACKEND_ENV}
+      PROXY_PORT: ${PROXY_PORT}
+      PORT: ${PORT}
+      GCC_CUTTING_SERVICE_HOST: ${GCC_CUTTING_SERVICE_HOST}
+      GCC_CUTTING_SERVICE_PORT: ${GCC_CUTTING_SERVICE_PORT}
+      MQTT_BROKER_URL: ${MQTT_BROKER_URL}
+      NEEDLE_BACKEND_BASE_URL: ${NEEDLE_BACKEND_BASE_URL}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"fetch('http://127.0.0.1:'+(process.env.PROXY_PORT||process.env.PORT)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  frontend:
+    build: .
+    network_mode: host
+    restart: unless-stopped
+    depends_on:
+      proxy:
+        condition: service_healthy
+    volumes:
+      - ./docker-data:/app/docker-data
+    entrypoint: ["/usr/bin/tini", "-g", "--", "/entrypoint-frontend.sh"]
+    command:
+      - sh
+      - -c
+      - npm run dev -- --host 0.0.0.0 --port $${VITE_DEV_SERVER_PORT}
+    environment:
+      VITE_DEV_SERVER_PORT: ${VITE_DEV_SERVER_PORT}
+      VITE_BACKEND_PORT: ${VITE_BACKEND_PORT}
+      VITE_NODE_PROXY_PORT: ${VITE_NODE_PROXY_PORT}
+      VITE_NODE_PROXY_HOST: ${VITE_NODE_PROXY_HOST}
+      VITE_DEV_API_TARGET: ${VITE_DEV_API_TARGET}
+      VITE_GCC_CUTTING_PROXY_TARGET: ${VITE_GCC_CUTTING_PROXY_TARGET}
+      VITE_SEWING_SERVICE_PROXY_TARGET: ${VITE_SEWING_SERVICE_PROXY_TARGET}
+      VITE_NODE_PROXY_URL: ${VITE_NODE_PROXY_URL:-}
