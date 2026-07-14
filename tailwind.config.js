@@ -4,6 +4,12 @@ export default {
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    safelist: [
+        {
+            pattern: /(bg|text|border|ring)-(purple|blue|emerald|red|amber|green)-(50|100|200|300|400|500|600|700)/,
+            variants: ['hover', 'focus', 'disabled'],
+        }
+    ],
     theme: {
         extend: {
             fontFamily: {

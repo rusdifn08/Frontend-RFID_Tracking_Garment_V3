@@ -15,6 +15,7 @@ const LineDetail = lazy(() => import('../pages/LineDetail.tsx'));
 const DashboardRFID = lazy(() => import('../pages/DashboardRFID.tsx'));
 const CheckingRFID = lazy(() => import('../pages/CheckingRFID.tsx'));
 const CheckingRFIDCutting = lazy(() => import('../pages/CheckingRFIDCutting.tsx'));
+const CheckingRFIDSewing = lazy(() => import('../pages/CheckingRFIDSewing.tsx'));
 const StatusRFID = lazy(() => import('../pages/StatusRFID.tsx'));
 const ListRFID = lazy(() => import('../pages/ListRFID.tsx'));
 const AboutUs = lazy(() => import('../pages/AboutUs.tsx'));
@@ -341,6 +342,16 @@ const router = createBrowserRouter([
             <ProtectedRoute>
                 <LazyWrapper>
                     <CheckingRFIDCutting />
+                </LazyWrapper>
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/checking-rfid-sewing',
+        element: (
+            <ProtectedRoute>
+                <LazyWrapper>
+                    <CheckingRFIDSewing />
                 </LazyWrapper>
             </ProtectedRoute>
         ),

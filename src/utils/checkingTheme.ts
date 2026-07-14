@@ -1,4 +1,4 @@
-export type CheckingTheme = 'default' | 'cutting';
+export type CheckingTheme = 'default' | 'cutting' | 'sewing';
 
 export const CHECKING_THEME: Record<
     CheckingTheme,
@@ -71,5 +71,28 @@ export const CHECKING_THEME: Record<
         filterBorder: 'border-emerald-500',
         filterIcon: 'text-emerald-600',
         filterHover: 'hover:bg-emerald-600',
+    },
+    sewing: {
+        border: 'border-purple-500',
+        borderHover: 'hover:border-purple-600',
+        icon: 'text-purple-600',
+        iconBg: 'bg-purple-50',
+        inputFocus: 'focus:ring-purple-500 focus:border-purple-500',
+        inputHover: 'hover:bg-purple-50',
+        button: 'bg-purple-600 hover:bg-purple-700',
+        buttonHover: '',
+        headerIconBorder: 'border-purple-500',
+        headerIcon: 'text-purple-600',
+        statTotalBg: 'bg-purple-50',
+        statTotalBorder: 'border-purple-300',
+        statTotalText: 'text-purple-700',
+        modalIconBg: 'bg-purple-100',
+        modalIcon: 'text-purple-700',
+        modalFooterBtn: 'bg-purple-600 hover:bg-purple-700',
+        modalFooterBtnHover: '',
+        cardHover: 'hover:from-purple-50 hover:to-purple-100',
+        filterBorder: 'border-purple-500',
+        filterIcon: 'text-purple-600',
+        filterHover: 'hover:bg-purple-600',
     },
 };

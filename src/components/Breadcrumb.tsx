@@ -273,6 +273,15 @@ export default function Breadcrumb() {
                 label: 'Checking RFID Cutting',
                 isActive: true,
             });
+        } else if (path.startsWith('/checking-rfid-sewing')) {
+            breadcrumbs.push({
+                label: 'RFID Batch Proses',
+                path: '/sewing',
+            });
+            breadcrumbs.push({
+                label: 'Checking Batch',
+                isActive: true,
+            });
         } else if (path.startsWith('/checking-rfid')) {
             breadcrumbs.push({
                 label: 'RFID Tracking',
@@ -668,7 +677,11 @@ export default function Breadcrumb() {
                                 )}
                                 {item.isActive ? (
                                     <span
-                                        className="relative px-2 xs:px-3 sm:px-4 md:px-5 py-0 bg-blue-600 text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base flex items-center tracking-wide rounded-r-md"
+                                        className={`relative px-2 xs:px-3 sm:px-4 md:px-5 py-0 text-white font-bold text-[10px] xs:text-xs sm:text-sm md:text-base flex items-center tracking-wide rounded-r-md ${
+                                            location.pathname.startsWith('/checking-rfid-sewing') ? 'bg-purple-600' :
+                                            location.pathname.startsWith('/checking-rfid-cutting') ? 'bg-emerald-600' :
+                                            'bg-blue-600'
+                                        }`}
                                         style={{
                                             clipPath: 'polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 100%)',
                                             marginTop: '0',

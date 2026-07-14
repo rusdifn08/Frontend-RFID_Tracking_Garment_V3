@@ -9,7 +9,7 @@ import NotificationModal from './notification/NotificationModal';
 import NotificationDetailModal from './notification/NotificationDetailModal';
 import { useNotifications } from '../hooks/useNotifications';
 import { getInitialEnvironment, getEnvironmentFromAPI, type BackendEnvironment } from '../config/api';
-import { isCuttingCheckingArea, isMonitoringCheckingArea } from '../utils/checkingPaths';
+import { isCuttingCheckingArea, isMonitoringCheckingArea, isSewingCheckingArea } from '../utils/checkingPaths';
 
 const ENV_LABEL: Record<BackendEnvironment, string> = {
     CLN: 'CLN',
@@ -25,6 +25,7 @@ const Header = memo(() => {
     const location = useLocation();
     const showMonitoringChecking = isMonitoringCheckingArea(location.pathname);
     const showCuttingChecking = isCuttingCheckingArea(location.pathname);
+    const showSewingChecking = isSewingCheckingArea(location.pathname);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [environment, setEnvironment] = useState<BackendEnvironment>(getInitialEnvironment);
 
@@ -181,6 +182,21 @@ const Header = memo(() => {
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                         <Radio className="w-4 xs:w-4.5 sm:w-5 h-4 xs:h-4.5 sm:h-5 text-emerald-700 group-hover:text-emerald-800 transition-all duration-300 group-hover:scale-110 relative z-10" strokeWidth={2.5} />
+                        <span className="tracking-wide hidden sm:inline relative z-10">CHECKING RFID</span>
+                        <span className="tracking-wide sm:hidden relative z-10">CHECK</span>
+                    </button>
+                ) : null}
+
+                {showSewingChecking ? (
+                    <button
+                        type="button"
+                        onClick={() => navigate('/checking-rfid-sewing')}
+                        className="flex items-center gap-2 xs:gap-2.5 sm:gap-3 px-4 xs:px-4.5 sm:px-5 md:px-6 py-1.5 xs:py-2 sm:py-2.5 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-300 text-purple-800 hover:from-purple-100 hover:to-purple-200 hover:border-purple-400 hover:text-purple-900 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-300 ease-in-out group text-xs sm:text-sm relative overflow-hidden"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                        title="Checking RFID — Area Sewing"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                        <Radio className="w-4 xs:w-4.5 sm:w-5 h-4 xs:h-4.5 sm:h-5 text-purple-700 group-hover:text-purple-800 transition-all duration-300 group-hover:scale-110 relative z-10" strokeWidth={2.5} />
                         <span className="tracking-wide hidden sm:inline relative z-10">CHECKING RFID</span>
                         <span className="tracking-wide sm:hidden relative z-10">CHECK</span>
                     </button>

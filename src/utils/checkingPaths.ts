@@ -20,3 +20,14 @@ export function isCuttingCheckingArea(pathname: string): boolean {
         pathname === '/checking-rfid-cutting'
     );
 }
+
+/** Area Sewing (tombol ungu → /checking-rfid-sewing). */
+export function isSewingCheckingArea(pathname: string): boolean {
+    return (
+        pathname === '/sewing' ||
+        pathname.startsWith('/sewing/line/') ||
+        pathname.startsWith('/dashboard-sewing-line') ||
+        pathname === '/sewing/rfid-identity' ||
+        pathname === '/checking-rfid-sewing'
+    );
+}
