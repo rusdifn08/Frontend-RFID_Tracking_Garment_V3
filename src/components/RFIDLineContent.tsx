@@ -53,6 +53,7 @@ export default function RFIDLineContent({ linePathPrefix = '', allPath = '/all-p
     const [startTimesData, setStartTimesData] = useState<Record<string, string>>({});
     const [targetsData, setTargetsData] = useState<Record<string, number>>({});
     const [displayTitlesData, setDisplayTitlesData] = useState<Record<string, string>>({});
+    const [queryLinesData, setQueryLinesData] = useState<Record<string, string>>({});
     // Style per line untuk card (fetch 1x saja, bukan real-time)
     const [stylesData, setStylesData] = useState<Record<string, string>>({});
 
@@ -336,6 +337,7 @@ export default function RFIDLineContent({ linePathPrefix = '', allPath = '/all-p
             setStartTimesData(data.startTimes || {});
             setTargetsData(data.targets || {});
             setDisplayTitlesData(data.displayTitles || {});
+            setQueryLinesData(data.queryLines || {});
         }
     };
 
@@ -743,12 +745,14 @@ export default function RFIDLineContent({ linePathPrefix = '', allPath = '/all-p
                                     setLongPressedId(null);
                                     return;
                                 }
-                                // Gunakan currentLine untuk memastikan data yang benar
                                 if (currentLine.id === 0 || currentLine.id === 111 || currentLine.id === 112 || currentLine.id === 113) {
                                     navigate(allPath);
                                 } else {
-                                    // Prioritas: gunakan currentLine.line jika ada, fallback ke currentLine.id
-                                    const targetLine = currentLine.line || currentLine.id.toString();
+                                    // Prioritas: gunakan queryLinesData jika ada, fallback ke currentLine.line, fallback ke currentLine.id
+                                    let targetLine = queryLinesData[currentLine.id.toString()];
+                                    if (!targetLine) {
+                                        targetLine = currentLine.line || currentLine.id.toString();
+                                    }
                                     const linePath = linePathPrefix ? `${linePathPrefix}/line/${targetLine}` : `/line/${targetLine}`;
                                     navigate(linePath);
                                 }
@@ -1179,7 +1183,7 @@ export default function RFIDLineContent({ linePathPrefix = '', allPath = '/all-p
                     currentShift={lineShifts[selectedLine.id] || 'day'}
                     currentStartTime={startTimesData[selectedLine.id.toString()] || '07:30'}
                     currentTarget={typeof targetsData[selectedLine.id.toString()] === 'number' ? targetsData[selectedLine.id.toString()] : 0}
-                    environment={environment}
+                    currentQueryLine={queryLinesData[selectedLine.id.toString()] || ''}
                     onUpdate={handleUpdate}
                 />
             )}

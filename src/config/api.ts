@@ -231,6 +231,7 @@ export interface SupervisorDataPayload {
     startTimes: Record<string, string>;
     targets?: Record<string, number>;
     displayTitles?: Record<string, string>;
+    queryLines?: Record<string, string>;
 }
 
 const supervisorDataCache: Partial<Record<string, SupervisorDataPayload>> = {};

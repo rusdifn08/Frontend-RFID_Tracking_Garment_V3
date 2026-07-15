@@ -13,6 +13,8 @@ interface EditSupervisorShiftModalProps {
     currentTarget?: number; // Target (acuan distribusi dashboard line)
     /** Nama tampilan kustom (kosong = pakai default) */
     currentDisplayTitle?: string;
+    /** Query Line untuk parameter API */
+    currentQueryLine?: string;
     defaultLineTitle?: string;
     environment: BackendEnvironment;
     pageType?: 'sewing' | 'production';
@@ -29,6 +31,7 @@ export default function EditSupervisorShiftModal({
     currentStartTime = '07:30',
     currentTarget = 0,
     currentDisplayTitle = '',
+    currentQueryLine = '',
     defaultLineTitle,
     environment,
     pageType = 'production',
@@ -39,6 +42,7 @@ export default function EditSupervisorShiftModal({
     const [startTime, setStartTime] = useState(currentStartTime);
     const [target, setTarget] = useState(currentTarget);
     const [displayTitle, setDisplayTitle] = useState(currentDisplayTitle);
+    const [queryLine, setQueryLine] = useState(currentQueryLine);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -51,10 +55,11 @@ export default function EditSupervisorShiftModal({
             setStartTime(currentStartTime || '07:30');
             setTarget(typeof currentTarget === 'number' && currentTarget >= 0 ? currentTarget : 0);
             setDisplayTitle(currentDisplayTitle || '');
+            setQueryLine(currentQueryLine || '');
             setError(null);
             setSuccess(false);
         }
-    }, [isOpen, currentSupervisor, currentShift, currentStartTime, currentTarget, currentDisplayTitle]);
+    }, [isOpen, currentSupervisor, currentShift, currentStartTime, currentTarget, currentDisplayTitle, currentQueryLine]);
 
     const handleSave = async () => {
         if (!supervisor.trim()) {
@@ -87,6 +92,7 @@ export default function EditSupervisorShiftModal({
                     startTime: startTime.trim(),
                     target: typeof target === 'number' && target >= 0 ? target : 0,
                     displayTitle: displayTitle.trim(),
+                    queryLine: queryLine.trim(),
                     environment,
                     pageType
                 })
@@ -173,8 +179,27 @@ export default function EditSupervisorShiftModal({
                                 disabled={isSaving}
                             />
                             <p className="text-[10px] xs:text-xs text-gray-500 mt-1 leading-tight">
-                                Hanya mengubah judul di kartu. Data tetap diambil dari Line {lineId}
+                                HANYA MENGUBAH JUDUL DI KARTU. DATA TETAP DIAMBIL DARI LINE {lineId}
                                 {defaultLineTitle ? ` (${defaultLineTitle})` : ''}.
+                            </p>
+                        </div>
+
+                        {/* Query Line Input */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+                                <Tag size={14} className="sm:w-4 sm:h-4 text-purple-600 flex-shrink-0" />
+                                Query Line (API)
+                            </label>
+                            <input
+                                type="text"
+                                value={queryLine}
+                                onChange={(e) => setQueryLine(e.target.value)}
+                                placeholder={`Line ${lineId}`}
+                                className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-base border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all min-h-[44px] sm:min-h-[48px]"
+                                disabled={isSaving}
+                            />
+                            <p className="text-[10px] xs:text-xs text-gray-500 mt-1 leading-tight">
+                                Parameter line yang dikirim ke API backend saat mengambil data detail.
                             </p>
                         </div>
 

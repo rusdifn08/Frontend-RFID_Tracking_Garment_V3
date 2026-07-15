@@ -185,6 +185,9 @@ const DRYROOM_HOURLY_FILE = path.join(dataDir, 'dryroom_hourly_data.json');
 const SHIFT_DATA_FILE = path.join(dataDir, 'shift_data.json');
 // Path file untuk menyimpan data supervisor per line
 const SUPERVISOR_DATA_FILE = path.join(dataDir, 'supervisor_data.json');
+// Path file backup untuk data Query Line per line (berdampak ke parameter API)
+const DATA_LINE_PRODUCTION_FILE = path.join(dataDir, 'data_line_production.json');
+const DATA_LINE_SEWING_FILE = path.join(dataDir, 'data_line_sewing.json');
 /** Layout sewing: mapping operator per proses SMV per line (dibaca embedded backend) */
 const SEWING_LAYOUT_DATA_FILE = path.join(dataDir, 'sewing_layout_data.json');
 /** Uji coba layout POST — format ringkas: smv_id, rfid_user, batch */
@@ -5156,6 +5159,36 @@ function saveSupervisorData(supervisorData) {
 }
 
 /**
+ * Load query lines data dari file
+ */
+function loadQueryLinesData(pageType) {
+    try {
+        const filePath = pageType === 'sewing' ? DATA_LINE_SEWING_FILE : DATA_LINE_PRODUCTION_FILE;
+        if (fs.existsSync(filePath)) {
+            const data = fs.readFileSync(filePath, 'utf-8');
+            const parsed = JSON.parse(data);
+            return parsed.Line || {};
+        }
+    } catch (error) {
+        console.error(`❌ [QUERY LINE] Error loading data for ${pageType}:`, error.message);
+    }
+    return {};
+}
+
+/**
+ * Save query lines data ke file
+ */
+function saveQueryLinesData(pageType, queryLines) {
+    try {
+        const filePath = pageType === 'sewing' ? DATA_LINE_SEWING_FILE : DATA_LINE_PRODUCTION_FILE;
+        const data = { Line: queryLines };
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (error) {
+        console.error(`❌ [QUERY LINE] Error saving data for ${pageType}:`, error.message);
+    }
+}
+
+/**
  * GET /api/supervisor-data - Get supervisor data untuk semua line
  * Query: ?environment=CLN|MJL|MJL2 (optional, default: detect from CURRENT_ENV)
  */
@@ -5344,6 +5377,21 @@ app.get('/api/supervisor-data', (req, res) => {
                 allDisplayTitles[storageKey] || allDisplayTitles[fallbackKey] || allDisplayTitles[lineId] || '';
         });
 
+        const queryLinesData = loadQueryLinesData(pageType);
+        const filteredQueryLines = {};
+
+        Object.keys(filteredSupervisors).forEach((lineId) => {
+            let qLine = queryLinesData[lineId];
+            if (!qLine) {
+                 if (filteredDisplayTitles[lineId]) {
+                      qLine = filteredDisplayTitles[lineId].replace('Production Line', 'Line').trim();
+                 } else {
+                      qLine = `Line ${lineId}`;
+                 }
+            }
+            filteredQueryLines[lineId] = qLine;
+        });
+
         return res.json({
             success: true,
             data: {
@@ -5503,7 +5551,7 @@ app.get('/api/target-data', (req, res) => {
  */
 app.post('/api/supervisor-data', (req, res) => {
     try {
-        const { lineId, supervisor, startTime, target, displayTitle, environment: reqEnv, pageType = 'production' } = req.body;
+        const { lineId, supervisor, startTime, target, displayTitle, queryLine, environment: reqEnv, pageType = 'production' } = req.body;
 
         if (lineId === undefined || lineId === null) {
             console.error(`❌ [SUPERVISOR DATA] Missing lineId in request`);
@@ -5619,11 +5667,37 @@ app.post('/api/supervisor-data', (req, res) => {
             }
         }
 
+        // Update query line
+        let currentQueryLine = '';
+        if (queryLine !== undefined && queryLine !== null) {
+            const trimmedQueryLine = typeof queryLine === 'string' ? queryLine.trim() : '';
+            const queryLinesData = loadQueryLinesData(pageType);
+            if (trimmedQueryLine) {
+                queryLinesData[lineIdStr] = trimmedQueryLine;
+            } else {
+                delete queryLinesData[lineIdStr];
+            }
+            saveQueryLinesData(pageType, queryLinesData);
+            currentQueryLine = trimmedQueryLine;
+        } else {
+            const queryLinesData = loadQueryLinesData(pageType);
+            currentQueryLine = queryLinesData[lineIdStr] || '';
+        }
+
         saveSupervisorData(supervisorData);
 
         const currentTarget = typeof supervisorData.targets[storageKey] === 'number' ? supervisorData.targets[storageKey] : (typeof supervisorData.targets[lineIdStr] === 'number' ? supervisorData.targets[lineIdStr] : 0);
         const currentDisplayTitle =
             supervisorData.displayTitles[storageKey] || supervisorData.displayTitles[lineIdStr] || '';
+            
+        if (!currentQueryLine) {
+             if (currentDisplayTitle) {
+                  currentQueryLine = currentDisplayTitle.replace('Production Line', 'Line').trim();
+             } else {
+                  currentQueryLine = `Line ${lineIdStr}`;
+             }
+        }
+
         return res.json({
             success: true,
             message: `Data updated for line ${lineId}`,
@@ -5633,6 +5707,7 @@ app.post('/api/supervisor-data', (req, res) => {
                 startTime: supervisorData.startTimes[storageKey] || supervisorData.startTimes[lineIdStr] || '07:30',
                 target: currentTarget,
                 displayTitle: currentDisplayTitle,
+                queryLine: currentQueryLine,
                 environment: environment
             },
             timestamp: new Date().toISOString()
