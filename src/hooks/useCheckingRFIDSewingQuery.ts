@@ -39,7 +39,7 @@ interface UseCheckingRFIDSewingReturn {
 }
 
 const fetchSewingBatchCheck = async (rfid: string): Promise<any> => {
-  const url = `${API_BASE_URL}/api/sewing/check/batch?rfid_bundles=${encodeURIComponent(rfid)}`;
+  const url = `${API_BASE_URL}/api/sewing/check/batch?rfid_garment=${encodeURIComponent(rfid)}`;
   const response = await fetch(url, {
     method: 'GET',
     headers: {
