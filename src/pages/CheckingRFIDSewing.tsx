@@ -158,6 +158,7 @@ export default function CheckingRFIDSewing() {
                                                                 <thead className="text-xs text-gray-500 bg-gray-50 uppercase">
                                                                     <tr>
                                                                         <th className="px-4 py-2 border-b">Batch</th>
+                                                                        <th className="px-4 py-2 border-b">RFID Batch</th>
                                                                         <th className="px-4 py-2 border-b">Proses</th>
                                                                         <th className="px-4 py-2 border-b">IN</th>
                                                                         <th className="px-4 py-2 border-b">OUT</th>
@@ -177,6 +178,7 @@ export default function CheckingRFIDSewing() {
                                                                         return (
                                                                             <tr key={bIndex} className="bg-white border-b hover:bg-gray-50 last:border-0">
                                                                                 <td className="px-4 py-2 text-gray-900 font-medium">B{batch.batch_no}</td>
+                                                                                <td className="px-4 py-2 text-gray-600 font-mono text-xs">{batch.rfid_batch || '-'}</td>
                                                                                 <td className="px-4 py-2 text-gray-600">{batch.ket_batch}</td>
                                                                                 <td className="px-4 py-2">
                                                                                     {batch.has_in ? (
