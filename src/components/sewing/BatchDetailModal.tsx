@@ -169,13 +169,8 @@ const BatchDetailModal = memo(
           const lineMatch = urlLineId?.match(/\d+/);
           const line = lineMatch ? lineMatch[0] : urlLineId;
           
-          const style = order?.style || '';
-          const wo = order?.wo || '';
-          
           const params = new URLSearchParams();
           if (line) params.append('line', line);
-          if (style && style !== 'ALL' && style !== '—') params.append('style', style);
-          if (wo && wo !== 'ALL' && wo !== '—') params.append('wo', wo);
           if (tanggalfrom) params.append('tanggalfrom', tanggalfrom);
           if (tanggalto) params.append('tanggalto', tanggalto);
           
@@ -192,8 +187,12 @@ const BatchDetailModal = memo(
           if (res.ok) {
             const json = await res.json();
             if (json.code === 200 && Array.isArray(json.data)) {
-              // Filter by batch No
-              const batchData = json.data.filter((d: any) => String(d.batch) === String(batch.batch));
+              // Filter by ket_batch (name) or fallback to batch No
+              const batchData = json.data.filter((d: any) => {
+                const matchName = d.ket_batch?.trim().toUpperCase() === batch.type?.trim().toUpperCase();
+                const matchId = String(d.batch) === String(batch.batch);
+                return matchName || matchId;
+              });
               
               // Group by rfid_batch
               const rfidMap = new Map<string, { inItem?: any, outItem?: any }>();
